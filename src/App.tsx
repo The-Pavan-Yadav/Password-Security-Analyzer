@@ -3,26 +3,29 @@ import { ShieldCheck } from 'lucide-react';
 import Analyzer from './components/Analyzer';
 import Generator from './components/Generator';
 import Tips from './components/Tips';
+import History from './components/History';
+import AdminLogin from './components/AdminLogin';
 
-type Tab = 'analyzer' | 'generator' | 'tips';
+type Tab = 'analyzer' | 'generator' | 'tips' | 'history' | 'admin';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('analyzer');
+  const [isAdminAuth, setIsAdminAuth] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col items-center px-4 py-12 md:py-20">
-      <div className="w-full max-w-[960px] mx-auto space-y-10 flex-1">
+    <div className="min-h-screen flex flex-col items-center px-2 sm:px-4 py-6 md:py-20 w-full max-w-[100vw] overflow-x-hidden">
+      <div className="w-full max-w-[960px] mx-auto space-y-5 md:space-y-10 flex-1 mt-1 md:mt-6">
         
         {/* Top Navigation / Header */}
-        <header className="flex flex-col items-center space-y-6">
-          <div className="flex items-center gap-2.5 text-[#1A1A1A]">
-            <div className="p-2 bg-[#E5E7EB] rounded-full">
-              <ShieldCheck className="w-5 h-5 text-[#1A1A1A]" />
+        <header className="flex flex-col items-center space-y-3 md:space-y-6">
+          <div className="flex items-center gap-2 md:gap-2.5 text-[#1A1A1A]">
+            <div className="p-1.5 md:p-2 bg-[#E5E7EB] rounded-full">
+              <ShieldCheck className="w-4 h-4 md:w-5 md:h-5 text-[#1A1A1A]" />
             </div>
-            <span className="text-[15px] font-bold tracking-tight">Password Security Analyzer</span>
+            <span className="text-[13px] md:text-[15px] font-bold tracking-tight text-center">Password Security Analyzer</span>
           </div>
 
-          <nav className="flex items-center gap-4 p-1 max-w-full overflow-x-auto hide-scrollbar">
+          <nav className="flex flex-wrap justify-center items-center gap-1.5 md:gap-4 p-1 w-full">
             <TabButton 
               active={activeTab === 'analyzer'} 
               onClick={() => setActiveTab('analyzer')}
@@ -49,18 +52,45 @@ export default function App() {
           {activeTab === 'analyzer' && <Analyzer />}
           {activeTab === 'generator' && <Generator />}
           {activeTab === 'tips' && <Tips />}
+          {activeTab === 'admin' && !isAdminAuth && (
+            <AdminLogin onLogin={() => {
+              setIsAdminAuth(true);
+              setActiveTab('history');
+            }} />
+          )}
+          {(activeTab === 'history' || (activeTab === 'admin' && isAdminAuth)) && (
+            isAdminAuth ? (
+              <History />
+            ) : (
+              <AdminLogin onLogin={() => {
+                setIsAdminAuth(true);
+                setActiveTab('history');
+              }} />
+            )
+          )}
         </main>
       </div>
 
       {/* Privacy Footer */}
-      <footer className="w-full max-w-[960px] mx-auto mt-16 pt-8 border-t border-[#E5E7EB] flex items-center justify-center text-center">
-        <div className="flex items-center gap-2">
-          <ShieldCheck className="w-3.5 h-3.5 text-[#6B7280]" />
-          <p className="text-[11px] text-[#6B7280]">
+      <footer className="w-full max-w-[960px] mx-auto mt-12 md:mt-16 pt-6 md:pt-8 border-t border-[#E5E7EB] flex items-center justify-center text-center">
+        <div className="flex items-center gap-2 relative">
+          <ShieldCheck className="w-3.5 md:w-4 h-3.5 md:h-4 text-[#6B7280]" />
+          <p className="text-[10px] md:text-[13px] text-[#6B7280]">
             Your password stays on your device. Analysis is performed locally in your browser.
           </p>
         </div>
       </footer>
+
+      {/* Hidden Admin Trigger */}
+      <button 
+        onClick={() => {
+          setIsAdminAuth(false);
+          setActiveTab('admin');
+        }}
+        className="fixed bottom-0 left-1/2 -translate-x-1/2 w-32 h-12 bg-transparent outline-none border-none shadow-none z-50 cursor-default"
+        aria-hidden="true"
+        tabIndex={-1}
+      />
     </div>
   );
 }
@@ -69,10 +99,10 @@ function TabButton({ children, active, onClick }: { children: React.ReactNode; a
   return (
     <button
       onClick={onClick}
-      className={`px-4 py-2 text-[13px] font-medium whitespace-nowrap transition-all duration-200 ${
+      className={`px-2.5 md:px-4 py-1.5 md:py-2 min-h-[36px] md:min-h-0 text-[11px] md:text-[13px] font-medium whitespace-nowrap transition-all duration-200 rounded-lg ${
         active 
-          ? 'text-indigo-600' 
-          : 'text-[#6B7280] hover:text-indigo-600'
+          ? 'text-indigo-600 bg-indigo-50 md:bg-transparent' 
+          : 'text-[#6B7280] hover:text-indigo-600 hover:bg-gray-50 md:hover:bg-transparent'
       }`}
     >
       {children}

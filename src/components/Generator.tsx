@@ -48,121 +48,114 @@ export default function Generator() {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="space-y-8"
+      className="w-full flex flex-col items-center"
     >
       
-      {/* Header */}
-      <div className="text-center space-y-2">
-        <h1 className="text-[40px] font-semibold tracking-[-0.03em] leading-tight text-[#1A1A1A]">Secure Generator</h1>
-        <p className="text-[#6B7280] text-sm max-w-md mx-auto">
+      {/* Hero */}
+      <div className="flex flex-col items-center text-center space-y-3 mb-10 mt-2 md:mt-6">
+        <h1 className="text-[24px] md:text-[40px] font-semibold tracking-tight text-[#1A1A1A] leading-tight">Secure Generator</h1>
+        <p className="text-[#6B7280] text-[11px] md:text-[15px] max-w-md mx-auto">
           Create strong, unpredictable passwords that are highly resistant to cracking.
         </p>
       </div>
 
-      <div className="bg-white border border-[#E5E7EB] rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.03)] overflow-hidden">
+      <div className="w-full max-w-[760px] mx-auto bg-white border border-[#E5E7EB] rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.02)] overflow-hidden">
         
         {/* Output Section */}
-        <div className="bg-[#0A0A0A] p-6 md:p-8 flex flex-col md:flex-row items-center gap-4">
-          <div className="flex-1 w-full bg-[#222222] border border-[#333333] rounded-lg px-5 py-4 flex items-center justify-between group">
-            <span className="font-mono text-sm tracking-wide text-white break-all select-all">{password}</span>
+        <div className="bg-[#0A0A0A] p-3 md:p-8 flex flex-col md:flex-row items-stretch md:items-center gap-3 md:gap-4">
+          <div className="flex-1 w-full bg-[#1A1A1A] border border-[#333333] rounded-lg px-3 md:px-5 py-2.5 md:py-4 flex items-center justify-between group min-h-[36px] md:min-h-[44px]">
+            <span className="font-mono text-[13px] md:text-[17px] tracking-wide text-white break-all select-all">{password}</span>
           </div>
           
           <div className="flex w-full md:w-auto gap-2">
             <button
-              onClick={handleGenerate}
-              className="flex-1 md:flex-none p-4 bg-white text-black font-semibold rounded-lg hover:bg-gray-100 transition-colors active:scale-[0.98]"
-              aria-label="Regenerate password"
+              onClick={handleCopy}
+              className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white hover:bg-gray-100 text-[#1A1A1A] px-3 md:px-5 py-2 md:py-4 rounded-lg font-semibold text-[11px] md:text-[13px] transition-colors min-h-[36px] md:min-h-[44px]"
             >
-              <RefreshCw className="w-5 h-5 mx-auto" />
+              {copied ? <Check className="w-3.5 h-3.5 md:w-4 md:h-4" /> : <Copy className="w-3.5 h-3.5 md:w-4 md:h-4" />}
+              {copied ? 'Copied' : 'Copy'}
             </button>
             <button
-              onClick={handleCopy}
-              className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 bg-white text-black rounded-lg hover:bg-gray-100 transition-colors active:scale-[0.98] font-semibold text-sm"
+              onClick={handleGenerate}
+              className="flex items-center justify-center bg-[#222222] hover:bg-[#333333] border border-[#333333] text-white p-2 md:p-4 rounded-lg transition-colors min-w-[36px] md:min-w-[44px] min-h-[36px] md:min-h-[44px]"
+              title="Generate new password"
             >
-              {copied ? (
-                <>
-                  <Check className="w-4 h-4" />
-                  <span>Copied</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4" />
-                  <span>Copy</span>
-                </>
-              )}
+              <RefreshCw className="w-3.5 h-3.5 md:w-4 md:h-4" />
             </button>
           </div>
         </div>
 
         {/* Controls Section */}
-        <div className="p-6 md:p-8 space-y-8">
+        <div className="p-3.5 md:p-8 space-y-5 md:space-y-8">
           
           {/* Length Slider */}
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <label htmlFor="length-slider" className="text-[13px] font-medium text-[#1A1A1A]">Password Length</label>
-              <span className="text-sm font-mono font-semibold text-indigo-600 w-8 text-right">{options.length}</span>
+              <label className="text-[11px] md:text-[13px] font-medium text-[#1A1A1A]">Password Length</label>
+              <span className="font-mono text-[12px] md:text-[15px] font-semibold text-[#1A1A1A]">{options.length}</span>
             </div>
+            
             <input
-              id="length-slider"
               type="range"
               min="8"
-              max="32"
+              max="64"
               value={options.length}
               onChange={(e) => handleOptionChange('length', parseInt(e.target.value, 10))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+              className="w-full h-1.5 bg-[#E5E7EB] rounded-lg appearance-none cursor-pointer accent-[#1A1A1A]"
+            />
+            <div className="flex justify-between text-[10px] md:text-[11px] text-[#9CA3AF] font-medium">
+              <span>8</span>
+              <span>64</span>
+            </div>
+          </div>
+
+          <div className="h-px w-full bg-[#E5E7EB]"></div>
+
+          {/* Checkboxes */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Checkbox 
+              label="Uppercase (A-Z)" 
+              checked={options.uppercase} 
+              onChange={(v) => handleOptionChange('uppercase', v)} 
+            />
+            <Checkbox 
+              label="Lowercase (a-z)" 
+              checked={options.lowercase} 
+              onChange={(v) => handleOptionChange('lowercase', v)} 
+            />
+            <Checkbox 
+              label="Numbers (0-9)" 
+              checked={options.numbers} 
+              onChange={(v) => handleOptionChange('numbers', v)} 
+            />
+            <Checkbox 
+              label="Symbols (!@#$)" 
+              checked={options.symbols} 
+              onChange={(v) => handleOptionChange('symbols', v)} 
             />
           </div>
 
-          {/* Character Options */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Checkbox
-              id="opt-upper"
-              label="Uppercase Letters"
-              checked={options.uppercase}
-              onChange={(c) => handleOptionChange('uppercase', c)}
-            />
-            <Checkbox
-              id="opt-lower"
-              label="Lowercase Letters"
-              checked={options.lowercase}
-              onChange={(c) => handleOptionChange('lowercase', c)}
-            />
-            <Checkbox
-              id="opt-numbers"
-              label="Numbers"
-              checked={options.numbers}
-              onChange={(c) => handleOptionChange('numbers', c)}
-            />
-            <Checkbox
-              id="opt-symbols"
-              label="Symbols"
-              checked={options.symbols}
-              onChange={(c) => handleOptionChange('symbols', c)}
-            />
-          </div>
         </div>
       </div>
     </motion.div>
   );
 }
 
-function Checkbox({ id, label, checked, onChange }: { id: string; label: string; checked: boolean; onChange: (c: boolean) => void }) {
+function Checkbox({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
   return (
-    <label htmlFor={id} className="flex items-center gap-3 p-3 rounded-lg border border-transparent hover:bg-gray-50 transition-colors cursor-pointer group">
-      <div className="relative flex items-center">
-        <input
-          type="checkbox"
-          id={id}
-          checked={checked}
-          onChange={(e) => onChange(e.target.checked)}
-          className="peer sr-only"
-        />
-        <div className="w-5 h-5 border-2 border-gray-300 rounded peer-checked:bg-indigo-600 peer-checked:border-indigo-600 transition-colors flex items-center justify-center peer-focus-visible:ring-2 peer-focus-visible:ring-indigo-500/30">
-          <Check className={`w-3.5 h-3.5 text-white stroke-[3] transition-opacity ${checked ? 'opacity-100' : 'opacity-0'}`} />
-        </div>
+    <label className="flex items-center gap-2 md:gap-3 p-2 md:p-3 border border-[#E5E7EB] rounded-lg cursor-pointer hover:bg-gray-50 transition-colors min-h-[36px] md:min-h-[44px]">
+      <div className={`w-3.5 h-3.5 md:w-5 md:h-5 rounded flex items-center justify-center border transition-colors ${
+        checked ? 'bg-[#1A1A1A] border-[#1A1A1A]' : 'bg-white border-[#D1D5DB]'
+      }`}>
+        {checked && <Check className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 text-white" strokeWidth={3} />}
       </div>
-      <span className="text-sm font-medium text-gray-700 select-none group-hover:text-gray-900">{label}</span>
+      <input
+        type="checkbox"
+        className="hidden"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+      />
+      <span className="text-[11px] md:text-[13px] font-medium text-[#1A1A1A] select-none">{label}</span>
     </label>
   );
 }
