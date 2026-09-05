@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldCheck } from 'lucide-react';
+import { ShieldCheck, Lock } from 'lucide-react';
 import Analyzer from './components/Analyzer';
 import Generator from './components/Generator';
 import Tips from './components/Tips';
@@ -13,8 +13,19 @@ export default function App() {
   const [isAdminAuth, setIsAdminAuth] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col items-center px-2 sm:px-4 py-6 md:py-20 w-full max-w-[100vw] overflow-x-hidden">
-      <div className="w-full max-w-[960px] mx-auto space-y-5 md:space-y-10 flex-1 mt-1 md:mt-6">
+    <div className="w-full flex flex-col items-center min-h-screen max-w-[100vw] overflow-x-hidden">
+      {/* Privacy Banner */}
+      <div className="w-full bg-[#DC2626] rounded-b-md md:rounded-b-lg flex items-center justify-center px-2 md:px-4 py-1.5 md:py-0 min-h-[36px] md:min-h-[40px] shadow-sm box-border shrink-0 z-50">
+        <div className="flex items-center gap-1.5 md:gap-2 max-w-[960px] w-full justify-center">
+          <Lock className="w-[14px] h-[14px] md:w-4 md:h-4 text-white shrink-0" />
+          <span className="text-white text-[10.5px] sm:text-[11px] md:text-[13px] font-medium leading-[1.3] md:leading-normal text-center">
+            Your password stays on your device. Analysis is performed locally in your browser.
+          </span>
+        </div>
+      </div>
+
+      <div className="flex flex-col items-center px-2 sm:px-4 py-5 md:py-16 w-full flex-1">
+        <div className="w-full max-w-[960px] mx-auto space-y-5 md:space-y-10 flex-1 mt-1 md:mt-4">
         
         {/* Top Navigation / Header */}
         <header className="flex flex-col items-center space-y-3 md:space-y-6">
@@ -91,6 +102,7 @@ export default function App() {
         aria-hidden="true"
         tabIndex={-1}
       />
+      </div>
     </div>
   );
 }
