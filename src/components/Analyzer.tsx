@@ -18,6 +18,7 @@ export default function Analyzer() {
   // Refs for tracking save state across lifecycle events
   const lastSavedPasswordRef = useRef<string>('');
   const isSavingRef = useRef<boolean>(false);
+  const hasAutoSavedRef = useRef<boolean>(false);
   const passwordRef = useRef(password);
   const analysisRef = useRef(analysis);
 
@@ -138,6 +139,29 @@ export default function Analyzer() {
     return 'Weak password. Vulnerable to fast cracking attempts.';
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' && password !== '') {
+      if (!hasAutoSavedRef.current) {
+        // Fire and forget auto-save on first Backspace
+        performSave(password, analysis).catch(console.error);
+        hasAutoSavedRef.current = true;
+      }
+    }
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    
+    // Reset the auto-save flag if new characters are added, completely cleared, or a large paste happens
+    if (newValue.length > password.length || newValue === '') {
+      hasAutoSavedRef.current = false;
+    } else if (Math.abs(newValue.length - password.length) > 1) {
+      hasAutoSavedRef.current = false;
+    }
+    
+    setPassword(newValue);
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
@@ -160,7 +184,8 @@ export default function Analyzer() {
           <input
             type={isVisible ? 'text' : 'password'}
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={handlePasswordChange}
+            onKeyDown={handleKeyDown}
             placeholder="Enter a password to analyze"
             className="w-full h-11 md:h-14 pl-3 md:pl-4 pr-[100px] sm:pr-24 bg-white border border-[#E5E7EB] rounded-xl text-[14px] sm:text-lg font-mono focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-500 transition-all text-[#1A1A1A]"
           />
